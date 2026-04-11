@@ -63,3 +63,23 @@ def train(model, X_train, y_train, X_test, y_test, X_validate, y_validate, epoch
             )
 
     return train_losses, test_losses, validate_losses, accuracies
+
+def evaluate(model, X_test , y_test):
+    model.eval()
+    with torch.no_grad():
+        output = model(X_test)
+        probs = F.softmax(output, dim=1)
+        preds = torch.argmax(output, dim=1)
+
+    y_true = y_test.numpy()
+    y_pred = preds.numpy()
+    y_prob = probs.numpy()
+
+    precision = precision_score(y_true, y_pred, average='macro')
+    recall = recall_score(y_true, y_pred, average='macro')
+    f1 = f1_score(y_true, y_pred, average='macro')
+    auroc = roc_auc_score(y_true, y_prob, multi_class='ovr', average='macro')
+
+    print(classification_report(y_true, y_pred, target_names=['LumA', 'LumB', 'Basal', 'Her2', 'Normal']))
+
+    return precision, recall, f1, auroc
