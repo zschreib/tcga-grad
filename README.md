@@ -1,6 +1,8 @@
 # tcga-grad
 
-Exploratory deep learning pipeline for PAM50 breast cancer subtype classification from bulk RNA-seq gene expression data.
+Modular deep learning pipeline for cancer subtype classification and gradient attribution 
+from bulk RNA-seq expression data. Demonstrated on GSE96058 (SCAN-B breast cancer cohort).
+
 
 ## Background
 
@@ -94,3 +96,11 @@ Data downloads automatically from GEO on first run.
 ## Data
 
 GSE96058: SCAN-B breast cancer RNA-seq cohort. Downloaded automatically via GEOparse. Raw data not included in this repository per GEO data use policy.
+
+## Training Curves
+
+![Training Results](results/GSE96058_training_best_grid_result.png)
+
+## Gradient Attribution
+
+![Basal Attribution](results/attribution_Basal.png)
