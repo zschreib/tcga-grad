@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from sklearn.model_selection import train_test_split
 
 class TcgaNet(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, dropout=0.3):
@@ -30,8 +29,3 @@ if __name__ == "__main__":
 
     model = TcgaNet(input_dim=30865, hidden_dim=128, output_dim=5, dropout=0.3)
 
-    #fake test
-    data = torch.rand(16, 30865)
-    output = model(data)
-
-    print(f"Output shape: {output.shape}")

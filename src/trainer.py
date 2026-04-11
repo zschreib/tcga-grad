@@ -11,14 +11,16 @@ from sklearn.metrics import (
 )
 
 
-def train(model, X_train, y_train, X_test, y_test, X_validate, y_validate, epochs=100, lr=0.01):
-    criterion = nn.CrossEntropyLoss()
+def train(model, X_train, y_train, X_val, y_val, epochs=100, lr=0.001):
+    class_counts = torch.tensor([1709, 767, 360, 348, 225], dtype=torch.float32)
+    class_weights = 1.0 / class_counts
+    class_weights = class_weights / class_weights.sum()
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # track losses for plotting
     train_losses = []
-    test_losses = []
-    validate_losses = []
+    val_losses = []
     accuracies = []
 
     for epoch in range(epochs):
@@ -37,34 +39,30 @@ def train(model, X_train, y_train, X_test, y_test, X_validate, y_validate, epoch
         # ── update weights ──
         optimizer.step()
 
-        # ── evaluation every epoch for smooth curve ──
+        # ── validation every epoch ──
         model.eval()
         with torch.no_grad():
-            test_output = model(X_test)
-            val_output = model(X_validate)
-
-            test_loss = criterion(test_output, y_test)
-            val_loss = criterion(val_output, y_validate)
-            predictions = torch.argmax(test_output, dim=1)
-            accuracy = (predictions == y_test).float().mean()
+            val_output = model(X_val)
+            val_loss = criterion(val_output, y_val)
+            predictions = torch.argmax(val_output, dim=1)
+            accuracy = (predictions == y_val).float().mean()
 
         train_losses.append(loss.item())
-        test_losses.append(test_loss.item())
-        validate_losses.append(val_loss.item())
+        val_losses.append(val_loss.item())
         accuracies.append(accuracy.item())
 
         if epoch % 10 == 0:
             print(
                 f"Epoch {epoch:>3} | "
                 f"Train Loss: {loss.item():.4f} | "
-                f"Test Loss: {test_loss.item():.4f} | "
-                f"Val Loss: {val_loss.item():.4f} | "
-                f"Accuracy: {accuracy.item():.4f}"
+                f"Val Loss:   {val_loss.item():.4f} | "
+                f"Accuracy:   {accuracy.item():.4f}"
             )
 
-    return train_losses, test_losses, validate_losses, accuracies
+    return train_losses, val_losses, accuracies
 
-def evaluate(model, X_test , y_test):
+
+def evaluate(model, X_test, y_test):
     model.eval()
     with torch.no_grad():
         output = model(X_test)
@@ -80,6 +78,7 @@ def evaluate(model, X_test , y_test):
     f1 = f1_score(y_true, y_pred, average='macro')
     auroc = roc_auc_score(y_true, y_prob, multi_class='ovr', average='macro')
 
-    print(classification_report(y_true, y_pred, target_names=['LumA', 'LumB', 'Basal', 'Her2', 'Normal']))
+    print(classification_report(y_true, y_pred,
+                                target_names=['LumA', 'LumB', 'Basal', 'Her2', 'Normal']))
 
     return precision, recall, f1, auroc
