@@ -1,12 +1,14 @@
 import torch
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from dataset import load_dataset
 from model import TcgaNet
-from trainer import train, evaluate
+from trainer import train, evaluate, plot_metrics, set_seed, RESULTS_DIR
 
 if __name__ == "__main__":
+    set_seed(42)
     expression, labels, label_map = load_dataset()
 
     # split off holdout set (15%) not seen by model
@@ -33,7 +35,8 @@ if __name__ == "__main__":
     y_val = torch.tensor(y_val.values, dtype=torch.long)
     y_test = torch.tensor(y_holdout.values, dtype=torch.long)
 
-    model = TcgaNet(input_dim=30865, hidden_dim=128, output_dim=5, dropout=0.3)
+    # best params from grid search: see results/grid_search_log.txt
+    model = TcgaNet(input_dim=30865, hidden_dim=64, output_dim=5, dropout=0.3)
 
     train_losses, val_losses, accuracies = train(
         model, X_train, y_train, X_val, y_val,
@@ -41,3 +44,7 @@ if __name__ == "__main__":
     )
 
     precision, recall, f1, auroc = evaluate(model, X_test, y_test)
+    plot_metrics(train_losses, val_losses, accuracies)
+
+    torch.save(model.state_dict(), os.path.join(RESULTS_DIR, 'best_model.pth'))
+    print(f"Model saved to {RESULTS_DIR}/best_model.pth")

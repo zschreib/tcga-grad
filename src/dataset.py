@@ -4,10 +4,7 @@ import pandas as pd
 import GEOparse
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR  = os.path.join(ROOT_DIR, "data")
-
-# ── Constants ─────────────────────────────────────────────────────────────────
-
+DATA_DIR = os.path.join(ROOT_DIR, "data")
 GEO_ID = "GSE96058"
 EXPRESSION_URL = (
     "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96058/suppl/"
@@ -16,8 +13,6 @@ EXPRESSION_URL = (
 LABEL_COL = "pam50_subtype"
 PAM50_CLASSES = ["LumA", "LumB", "Basal", "Her2", "Normal"]
 
-
-# ── Download ──────────────────────────────────────────────────────────────────
 
 def download_geo(geo_id=GEO_ID, save_dir=DATA_DIR):
     """Load GEO series from disk if available, otherwise download."""
@@ -49,8 +44,6 @@ def download_expression_matrix(save_dir=DATA_DIR):
     return save_path
 
 
-# ── Loading ───────────────────────────────────────────────────────────────────
-
 def load_expression_matrix(save_dir=DATA_DIR):
     """Load expression matrix into a pandas DataFrame."""
     path = download_expression_matrix(save_dir)
@@ -72,8 +65,6 @@ def extract_labels(gse):
                 break
     return pd.Series(labels, name=LABEL_COL)
 
-
-# ── Alignment ─────────────────────────────────────────────────────────────────
 
 def build_aligned_dataset(gse, df, labels):
     """Align expression matrix columns with PAM50 labels using sample titles."""
@@ -104,8 +95,6 @@ def encode_labels(labels):
     print(f"\nLabel encoding: {label_map}")
     return encoded, label_map
 
-
-# ── Main ──────────────────────────────────────────────────────────────────────
 
 def load_dataset():
     """Full pipeline that returns aligned expression matrix and encoded labels."""

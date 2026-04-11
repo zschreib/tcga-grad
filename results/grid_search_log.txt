@@ -1,0 +1,19 @@
+hidden_dim=64 | dropout=0.3 | lr=0.001 | epochs=50 | f1=0.8470 | auroc=0.9704 | precision=0.8433 | recall=0.8524
+hidden_dim=64 | dropout=0.3 | lr=0.001 | epochs=100 | f1=0.8504 | auroc=0.9717 | precision=0.8492 | recall=0.8540
+hidden_dim=64 | dropout=0.3 | lr=0.0001 | epochs=50 | f1=0.8318 | auroc=0.9701 | precision=0.8220 | recall=0.8466
+hidden_dim=64 | dropout=0.3 | lr=0.0001 | epochs=100 | f1=0.8324 | auroc=0.9736 | precision=0.8241 | recall=0.8440
+hidden_dim=64 | dropout=0.5 | lr=0.001 | epochs=50 | f1=0.8456 | auroc=0.9714 | precision=0.8436 | recall=0.8517
+hidden_dim=64 | dropout=0.5 | lr=0.001 | epochs=100 | f1=0.8377 | auroc=0.9712 | precision=0.8326 | recall=0.8450
+hidden_dim=64 | dropout=0.5 | lr=0.0001 | epochs=50 | f1=0.8275 | auroc=0.9697 | precision=0.8113 | recall=0.8493
+hidden_dim=64 | dropout=0.5 | lr=0.0001 | epochs=100 | f1=0.8326 | auroc=0.9689 | precision=0.8193 | recall=0.8498
+hidden_dim=128 | dropout=0.3 | lr=0.001 | epochs=50 | f1=0.8366 | auroc=0.9696 | precision=0.8384 | recall=0.8387
+hidden_dim=128 | dropout=0.3 | lr=0.001 | epochs=100 | f1=0.8343 | auroc=0.9716 | precision=0.8506 | recall=0.8289
+hidden_dim=128 | dropout=0.3 | lr=0.0001 | epochs=50 | f1=0.8271 | auroc=0.9705 | precision=0.8207 | recall=0.8391
+hidden_dim=128 | dropout=0.3 | lr=0.0001 | epochs=100 | f1=0.8376 | auroc=0.9737 | precision=0.8429 | recall=0.8378
+hidden_dim=128 | dropout=0.5 | lr=0.001 | epochs=50 | f1=0.8385 | auroc=0.9695 | precision=0.8489 | recall=0.8400
+hidden_dim=128 | dropout=0.5 | lr=0.001 | epochs=100 | f1=0.8461 | auroc=0.9699 | precision=0.8514 | recall=0.8484
+hidden_dim=128 | dropout=0.5 | lr=0.0001 | epochs=50 | f1=0.8418 | auroc=0.9718 | precision=0.8377 | recall=0.8486
+hidden_dim=128 | dropout=0.5 | lr=0.0001 | epochs=100 | f1=0.8413 | auroc=0.9708 | precision=0.8363 | recall=0.8488
+
+======== BEST RUN ==========
+hidden_dim=64 | dropout=0.3 | lr=0.001 | epochs=100 | f1=0.8504
