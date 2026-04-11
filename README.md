@@ -96,11 +96,3 @@ Data downloads automatically from GEO on first run.
 ## Data
 
 GSE96058: SCAN-B breast cancer RNA-seq cohort. Downloaded automatically via GEOparse. Raw data not included in this repository per GEO data use policy.
-
-## Training Curves
-
-![Training Results](results/GSE96058_training_best_grid_result.png)
-
-## Gradient Attribution
-
-![Basal Attribution](results/attribution_Basal.png)
