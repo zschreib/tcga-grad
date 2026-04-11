@@ -3,10 +3,12 @@ import urllib.request
 import pandas as pd
 import GEOparse
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR  = os.path.join(ROOT_DIR, "data")
+
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 GEO_ID = "GSE96058"
-DATA_DIR = "data/"
 EXPRESSION_URL = (
     "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96058/suppl/"
     "GSE96058_gene_expression_3273_samples_and_136_replicates_transformed.csv.gz"
