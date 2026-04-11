@@ -55,7 +55,7 @@ tcga-grad/
 ## Installation
 
 ```bash
-git clone https://github.com/YOURUSERNAME/tcga-grad.git
+git clone https://github.com/zschreib/tcga-grad.git
 cd tcga-grad
 pip install -r requirements.txt
 ```
