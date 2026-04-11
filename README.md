@@ -4,7 +4,7 @@ Exploratory deep learning pipeline for PAM50 breast cancer subtype classificatio
 
 ## Background
 
-PAM50 molecular subtyping is a clinically validated method for classifying breast tumors into five intrinsic subtypes (Luminal A, Luminal B, Basal-like, HER2-enriched, and Normal-like), each associated with distinct prognoses and treatment pathways. Established tools like the Prosigna assay and the genefu R package implement centroid-based classification using the 50 PAM50 marker genes. This project asks a different question: can a neural network trained on the full transcriptome (30,865 genes) learn subtype-discriminating patterns, and can gradient attribution reveal which PAM50 genes the model relies on?
+PAM50 molecular subtyping is a clinically validated method for classifying breast tumors into five intrinsic subtypes (Luminal A, Luminal B, Basal-like, HER2-enriched, and Normal-like), each associated with distinct prognoses and treatment pathways. Established tools like the Prosigna assay and the genefu R package implement centroid-based classification using the 50 PAM50 marker genes, and machine learning approaches to PAM50 classification are well documented in the literature. The novel focus of this project is interpretability: after training a neural network on full transcriptome RNA-seq data (30,865 measured features in GSE96058), gradient attribution is applied to examine which PAM50 marker genes the model relies on, and whether the signal is concentrated in known subtype-specific markers or distributed across the broader expression program.
 
 ## Approach
 
@@ -75,7 +75,7 @@ Data downloads automatically from GEO on first run.
 
 ## Model
 
-**Architecture:** 2-layer MLP (30,865 input genes -> 64 hidden nodes -> 5 subtype classes)
+**Architecture:** 2-layer MLP (30,865 input features -> 64 hidden nodes -> 5 subtype classes)
 
 **Optimizer:** Adam with learning rate 0.001 and weight decay 1e-4
 
