@@ -32,20 +32,40 @@ Where this project differs from centroid-based tools is interpretability. After 
 
 Attribution reveals diffuse signal across PAM50 genes rather than concentration on a small number of subtype-specific markers, consistent with the known biology of PAM50 subtypes, which are defined by coordinated expression programs rather than single-gene thresholds. This aligns with the validation loss plateau observed during training, suggesting the model learned broad transcriptomic patterns rather than marker-specific rules.
 
-This finding motivates future work using more precise attribution methods such as integrated gradients or SHAP, which may better resolve gene-level contributions in high-dimensional expression data.
+This finding motivated a follow-up SHAP analysis (**now implemented**) in src/shap_analysis.py.
+
+## SHAP Analysis
+
+SHAP (SHapley Additive exPlanations) via DeepExplainer was applied to the trained model using 100 background training samples. Unlike vanilla gradients, SHAP accounts for feature interactions and provides directional attribution showing not just which genes matter but whether high or low expression pushes the prediction toward or away from each subtype.
+
+The Basal subtype summary plot illustrates biologically relevant signals:
+
+![SHAP Summary Basal](results/shap/shap_summary_Basal.png)
+
+Top SHAP genes for Basal include FOXC1 and PHGDH, established markers 
+of the Basal-like phenotype, alongside proliferation-associated genes 
+MKI67, CENPF, CEP55, and NUF2, consistent with the high proliferative 
+activity characteristic of Basal tumors. MLPH and PGR show negative 
+SHAP values, correctly reflecting that high expression of these Luminal 
+markers pushes predictions away from Basal. Overall the directional SHAP 
+signal validates that the model learned biologically meaningful 
+expression patterns rather than arbitrary statistical correlations.
+
+Full per-class SHAP scores are available in `results/shap/`.
 
 ## Project Structure
 ```
 tcga-grad/
-├── data/               # downloaded automatically, gitignored
-├── results/            # plots, grid search log, attribution CSVs
+├── data/                 # downloaded automatically, gitignored
+├── results/              # plots, grid search log, attribution CSVs, SHAP data
 ├── src/
-│   ├── dataset.py      # GEO data download, alignment, label encoding
-│   ├── model.py        # TcgaNet MLP architecture
-│   ├── trainer.py      # training loop, evaluation, metrics, plotting
-│   ├── train.py        # single run entry point
-│   ├── search.py       # hyperparameter grid search
-│   ├── attribution.py  # gradient attribution analysis
+│   ├── dataset.py        # GEO data download, alignment, label encoding
+│   ├── model.py          # TcgaNet MLP architecture
+│   ├── trainer.py        # training loop, evaluation, metrics, plotting
+│   ├── train.py          # single run entry point
+│   ├── search.py         # hyperparameter grid search
+│   ├── shap_analysis.py  # SHAP DeepExplainer attribution analysis
+│   ├── attribution.py    # gradient attribution analysis
 │   └── tests/
 │       └── test_model.py
 ├── requirements.txt
@@ -71,6 +91,9 @@ python src/search.py
 
 # gradient attribution analysis
 python src/attribution.py
+
+# SHAP attribution analysis
+python src/shap_analysis.py
 ```
 
 Data downloads automatically from GEO on first run.
@@ -87,12 +110,34 @@ Data downloads automatically from GEO on first run.
 
 ## Limitations and Future Work
 
-- Vanilla gradient attribution produces diffuse signal on high-dimensional expression data. Integrated gradients or SHAP would improve gene-level resolution and better resolve subtype-specific marker contributions.
+Vanilla gradient attribution produces diffuse signal on high-dimensional expression data. SHAP DeepExplainer resolves this limitation and is now implemented in `src/shap_analysis.py`, producing biologically interpretable gene rankings per subtype.
 
-- The model overfits to training data (train loss approaches 0, val loss plateaus around 0.65), suggesting that feature selection or dimensionality reduction prior to training is a natural next step. Filtering to biologically relevant gene sets before training may produce both better generalization and cleaner attribution.
+The model overfits to training data (train loss approaches 0 while val loss plateaus around 0.65), suggesting that feature selection or dimensionality reduction prior to training is a natural next step. Filtering to biologically relevant gene sets before training may produce both better generalization and cleaner attribution.
 
-- Normal subtype performance (F1 0.71) reflects the smallest patient cohort in the dataset (225 samples). Data augmentation or oversampling strategies may improve minority class prediction.
+Normal subtype performance (F1 0.71) reflects the smallest patient cohort in the dataset (225 samples). Data augmentation or oversampling strategies may improve minority class prediction.
+
+## Author
+
+**Zachary D. Schreiber** : zschreib.dev@gmail.com
 
 ## Data
 
 GSE96058: SCAN-B breast cancer RNA-seq cohort. Downloaded automatically via GEOparse. Raw data not included in this repository per GEO data use policy.
+
+## Acknowledgements
+
+This project builds on the following open source tools and datasets:
+
+- [SHAP](https://github.com/shap/shap) — Lundberg & Lee (2017). A Unified Approach to Interpreting Model Predictions. NeurIPS.
+- [PyTorch](https://pytorch.org/) — Paszke et al. (2019). PyTorch: An Imperative Style, High-Performance Deep Learning Library. NeurIPS.
+- [GEOparse](https://github.com/guma44/GEOparse) — for programmatic access to NCBI GEO datasets.
+- [scikit-learn](https://scikit-learn.org/) — Pedregosa et al. (2011). Scikit-learn: Machine Learning in Python. JMLR.
+
+## References
+
+- Parker et al. (2009). Supervised Risk Predictor of Breast Cancer Based on 
+  Intrinsic Subtypes. Journal of Clinical Oncology.
+  
+- Brueffer et al. (2018). Clinical Value of RNA Sequencing-Based Classifiers 
+  for Prediction of the Five Conventional Breast Cancer Biomarkers: A Report 
+  From the SCAN-B Initiative. JCO Precision Oncology.
