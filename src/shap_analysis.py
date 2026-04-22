@@ -24,6 +24,7 @@ PAM50_GENES = [
     'TMEM45B', 'ERBB2'
 ]
 
+
 def load_model_and_data():
     set_seed(42)
     expression, labels, label_map = load_dataset()
@@ -53,7 +54,94 @@ def load_model_and_data():
     # background dataset for SHAP
     X_temp_scaled = scaler.transform(X_temp)
     X_train_tensor = torch.tensor(X_temp_scaled, dtype=torch.float32)
-    X_background = X_train_tensor[:100] #100 samples
+    X_background = X_train_tensor[:100]  # 100 samples
 
     return model, X_test, y_test, gene_names, X_background
 
+
+def run_shap(model, X_background, X_test, gene_names):
+    """
+    Compute SHAP values for each PAM50 class using DeepExplainer.
+    Returns mean absolute SHAP values filtered to PAM50 genes.
+    """
+    model.eval()
+
+    # init explainer with background dataset
+    explainer = shap.DeepExplainer(model, X_background)
+
+    # shape [n_samples, n_features]
+    print("Computing SHAP values (this may take a while)...")
+    shap_values = explainer.shap_values(X_test, check_additivity=False)
+
+    results = {}
+
+    for class_idx, class_name in enumerate(PAM50_CLASSES):
+        print(f"\nProcessing SHAP values for {class_name}...")
+
+        # mean abs shap value per gene across all samples
+        mean_shap = np.abs(shap_values[:, :, class_idx]).mean(axis=0)
+
+        # pair gene names with shap scores
+        gene_scores = pd.Series(mean_shap, index=gene_names)
+
+        # PAM50 filter
+        gene_scores = gene_scores[gene_scores.index.isin(PAM50_GENES)]
+        gene_scores = gene_scores.sort_values(ascending=False)
+
+        print(f"Top 10 PAM50 genes for {class_name}:")
+        print(gene_scores.head(10).to_string())
+
+        results[class_name] = gene_scores
+
+    return results, shap_values
+
+
+def plot_shap(shap_values, X_test, gene_names, class_idx, class_name,
+              n_genes=20, save_dir=None):
+    save_dir = save_dir or RESULTS_DIR
+
+    # get PAM50 gene indices
+    pam50_idx = [i for i, g in enumerate(gene_names) if g in PAM50_GENES]
+    pam50_names = [gene_names[i] for i in pam50_idx]
+    X_pam50 = X_test[:, pam50_idx].numpy()
+    shap_pam50 = shap_values[:, pam50_idx, class_idx]
+
+    shap.summary_plot(
+        shap_pam50,
+        X_pam50,
+        feature_names=pam50_names,
+        max_display=n_genes,
+        show=False,
+        plot_type='dot'
+    )
+
+    plt.title(f'SHAP Summary — {class_name}')
+    plt.tight_layout()
+    os.makedirs(save_dir, exist_ok=True)
+    filename = f'shap_summary_{class_name}.png'
+    plt.savefig(os.path.join(save_dir, filename), dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"Plot saved to {save_dir}/{filename}")
+
+
+if __name__ == "__main__":
+
+    # load model and data
+    model, X_test, y_test, gene_names, X_background = load_model_and_data()
+
+    # run SHAP
+    results, raw_shap_values = run_shap(model, X_background, X_test, gene_names)
+
+    # shap results
+    shap_dir = os.path.join(RESULTS_DIR, 'shap')
+    os.makedirs(shap_dir, exist_ok=True)
+
+    # plots
+    for class_idx, class_name in enumerate(PAM50_CLASSES):
+        plot_shap(raw_shap_values, X_test, gene_names, class_idx, class_name,
+                  save_dir=shap_dir)
+
+        # save ranked gene csv to shap subfolder
+        csv_path = os.path.join(shap_dir, f'shap_{class_name}.csv')
+        results[class_name].to_csv(csv_path, header=['shap_score'])
+        print(f"SHAP scores saved to {csv_path}")
